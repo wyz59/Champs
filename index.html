@@ -21,89 +21,172 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 .rank{font-weight:800}.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.place{padding:16px;text-align:center;background:#0d1426;border-radius:14px}.place .medal{font-size:28px}.place b{display:block;margin:6px 0}.empty{text-align:center;color:#9aa5c0;padding:25px}
 .actions{display:flex;gap:8px}.small{padding:7px 10px;font-size:12px}
 .full{grid-column:1/-1}.footer{text-align:center;color:#66718b;margin-top:22px;font-size:12px}
+.user-bar{background:#131a2d;border:1px solid #26304a;padding:12px 18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 @media(max-width:750px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="container">
 <header>
-<div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre les feuilles de chacun et suis le classement.</div></div>
-<button onclick="exportData()">Exporter les données</button>
+  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre les feuilles de chacun et suis le classement en direct.</div></div>
 </header>
+
+<!-- Zone Compte / Connexion -->
+<div class="user-bar">
+  <div id="userInfo">Se connecter pour ajouter des feuilles</div>
+  <button id="loginBtn" class="small" onclick="switchUser()">Changer de compte / Pseudo</button>
+</div>
 
 <div class="grid">
 <section class="card">
-<h2>➕ Ajouter une entrée</h2>
+<h2>➕ Ajouter un dépôt</h2>
 <form class="form" id="form">
-<input id="name" placeholder="Nom de la personne" required>
 <input id="count" type="number" min="1" placeholder="Nombre de feuilles" required>
 <input id="date" type="date" required>
 <input id="time" type="time" required>
-<button>Ajouter</button>
+<button id="submitBtn">Ajouter à mon compte</button>
 </form>
 </section>
 
 <section class="card">
-<h2>📊 Résumé</h2>
+<h2>📊 Résumé Global</h2>
 <div class="stats">
 <div class="stat"><b id="total">0</b><span>Feuilles au total</span></div>
 <div class="stat"><b id="people">0</b><span>Personnes</span></div>
 <div class="stat"><b id="entries">0</b><span>Entrées</span></div>
 </div>
-<button class="danger" onclick="clearAll()">Tout supprimer</button>
 </section>
 
 <section class="card full">
-<h2>🏆 Classement</h2>
+<h2>🏆 Classement Général</h2>
 <div class="podium" id="podium"></div>
 <table><thead><tr><th>#</th><th>Personne</th><th>Feuilles</th></tr></thead><tbody id="ranking"></tbody></table>
 </section>
 
 <section class="card full">
-<h2>🕒 Historique</h2>
-<table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th></th></tr></thead><tbody id="history"></tbody></table>
+<h2>🕒 Historique des dépôts</h2>
+<table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
 <div class="empty" id="empty">Aucune entrée pour le moment.</div>
 </section>
 </div>
-<div class="footer">Les données sont sauvegardées automatiquement dans ce navigateur.</div>
+<div class="footer">Données synchronisées en temps réel.</div>
 </div>
 
 <script>
-const key="feuilles_app_v1";
-let data=JSON.parse(localStorage.getItem(key)||"[]");
-const $=id=>document.getElementById(id);
-const now=new Date();
-$("date").value=now.toISOString().slice(0,10);
-$("time").value=now.toTimeString().slice(0,5);
+// --- CONFIGURATION FIREBASE ---
+// 1. Crée un projet gratuit sur https://console.firebase.google.com/
+// 2. Ajoute une application Web et remplace les informations ci-dessous :
+const firebaseConfig = {
+  apiKey: "VOTRE_API_KEY",
+  authDomain: "votre-projet.firebaseapp.com",
+  databaseURL: "https://votre-projet-default-rtdb.firebaseio.com",
+  projectId: "votre-projet",
+  storageBucket: "votre-projet.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
 
-function save(){localStorage.setItem(key,JSON.stringify(data));render()}
-function render(){
-  const totals={};
-  data.forEach(x=>totals[x.name]=(totals[x.name]||0)+Number(x.count));
-  const sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]);
-  $("total").textContent=data.reduce((s,x)=>s+Number(x.count),0);
-  $("people").textContent=sorted.length;
-  $("entries").textContent=data.length;
-  $("ranking").innerHTML=sorted.map((x,i)=>`<tr><td class="rank">${i+1}</td><td>${esc(x[0])}</td><td><b>${x[1]}</b></td></tr>`).join("") || `<tr><td colspan="3" class="empty">Aucun classement</td></tr>`;
-  const medals=["🥇","🥈","🥉"];
-  $("podium").innerHTML=sorted.slice(0,3).map((x,i)=>`<div class="place"><div class="medal">${medals[i]}</div><b>${esc(x[0])}</b><span>${x[1]} feuilles</span></div>`).join("") || `<div class="empty" style="grid-column:1/-1">Le podium apparaîtra ici.</div>`;
-  $("history").innerHTML=data.slice().reverse().map((x,i)=>`<tr><td>${esc(x.name)}</td><td>${x.count}</td><td>${formatDate(x.date)}</td><td>${x.time}</td><td><button class="danger small" onclick="removeEntry('${x.id}')">Supprimer</button></td></tr>`).join("");
-  $("empty").style.display=data.length?"none":"block";
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// --- GESTION UTILISATEUR ---
+let currentUser = localStorage.getItem("feuilles_user") || "";
+
+function initUser() {
+  if (!currentUser) {
+    currentUser = prompt("Entrez votre pseudo / nom de compte :") || "Anonyme";
+    currentUser = currentUser.trim();
+    localStorage.setItem("feuilles_user", currentUser);
+  }
+  document.getElementById("userInfo").innerHTML = `Connecté en tant que : <b>${esc(currentUser)}</b>`;
 }
-function formatDate(s){const [y,m,d]=s.split("-");return `${d}/${m}/${y}`}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-$("form").addEventListener("submit",e=>{
- e.preventDefault();
- data.push({id:crypto.randomUUID(),name:$("name").value.trim(),count:Number($("count").value),date:$("date").value,time:$("time").value});
- $("form").reset();$("date").value=now.toISOString().slice(0,10);$("time").value=now.toTimeString().slice(0,5);save();
+
+function switchUser() {
+  const newUser = prompt("Entrez votre nouveau pseudo / nom :", currentUser);
+  if (newUser && newUser.trim()) {
+    currentUser = newUser.trim();
+    localStorage.setItem("feuilles_user", currentUser);
+    initUser();
+  }
+}
+
+initUser();
+
+// --- LOGIQUE APPLICATION ---
+const $ = id => document.getElementById(id);
+const now = new Date();
+$("date").value = now.toISOString().slice(0, 10);
+$("time").value = now.toTimeString().slice(0, 5);
+
+// Écoute en temps réel des modifications sur la base de données
+db.ref("entries").on("value", snapshot => {
+  const rawData = snapshot.val() || {};
+  const data = Object.keys(rawData).map(key => ({ id: key, ...rawData[key] }));
+  render(data);
 });
-function removeEntry(id){data=data.filter(x=>x.id!==id);save()}
-function clearAll(){if(confirm("Supprimer toutes les données ?")){data=[];save()}}
-function exportData(){
- const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="feuilles-donnees.json";a.click();URL.revokeObjectURL(a.href);
+
+function render(data) {
+  const totals = {};
+  data.forEach(x => totals[x.name] = (totals[x.name] || 0) + Number(x.count));
+  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  
+  $("total").textContent = data.reduce((s, x) => s + Number(x.count), 0);
+  $("people").textContent = sorted.length;
+  $("entries").textContent = data.length;
+  
+  $("ranking").innerHTML = sorted.map((x, i) => 
+    `<tr><td class="rank">${i + 1}</td><td>${esc(x[0])}</td><td><b>${x[1]}</b></td></tr>`
+  ).join("") || `<tr><td colspan="3" class="empty">Aucun classement</td></tr>`;
+  
+  const medals = ["🥇", "🥈", "🥉"];
+  $("podium").innerHTML = sorted.slice(0, 3).map((x, i) => 
+    `<div class="place"><div class="medal">${medals[i]}</div><b>${esc(x[0])}</b><span>${x[1]} feuilles</span></div>`
+  ).join("") || `<div class="empty" style="grid-column:1/-1">Le podium apparaîtra ici.</div>`;
+  
+  // Historique : Seul l'auteur d'une entrée peut la supprimer
+  $("history").innerHTML = data.slice().reverse().map(x => {
+    const isOwner = x.name.toLowerCase() === currentUser.toLowerCase();
+    const deleteBtn = isOwner 
+      ? `<button class="danger small" onclick="removeEntry('${x.id}')">Supprimer</button>` 
+      : `<span class="muted" style="font-size:11px">Autre compte</span>`;
+      
+    return `<tr><td>${esc(x.name)}</td><td>${x.count}</td><td>${formatDate(x.date)}</td><td>${x.time}</td><td>${deleteBtn}</td></tr>`;
+  }).join("");
+  
+  $("empty").style.display = data.length ? "none" : "block";
 }
-render();
+
+function formatDate(s) { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])); }
+
+$("form").addEventListener("submit", e => {
+  e.preventDefault();
+  
+  const newEntry = {
+    name: currentUser,
+    count: Number($("count").value),
+    date: $("date").value,
+    time: $("time").value,
+    createdAt: Date.now()
+  };
+
+  // Envoi vers Firebase
+  db.ref("entries").push(newEntry);
+
+  $("form").reset();
+  $("date").value = now.toISOString().slice(0, 10);
+  $("time").value = now.toTimeString().slice(0, 5);
+});
+
+function removeEntry(id) {
+  if (confirm("Voulez-vous supprimer ce dépôt ?")) {
+    db.ref("entries/" + id).remove();
+  }
+}
 </script>
 </body>
 </html>
