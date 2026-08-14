@@ -24,16 +24,17 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 .user-bar{background:#131a2d;border:1px solid #26304a;padding:12px 18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 @media(max-width:750px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
 <header>
-  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général.</div></div>
-  <button onclick="fetchData()" class="small">🔄 Rafraîchir</button>
+  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général en direct.</div></div>
+  <button onclick="loadData()" class="small">🔄 Rafraîchir</button>
 </header>
 
 <div class="user-bar">
-  <div id="userInfo">Compte : ...</div>
+  <div id="userInfo">Compte connecté : ...</div>
   <button class="small" onclick="switchUser()">Changer de Pseudo</button>
 </div>
 
@@ -66,22 +67,24 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 <section class="card full">
 <h2>🕒 Historique des dépôts</h2>
 <table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
-<div class="empty" id="empty">Aucune entrée pour le moment.</div>
+<div class="empty" id="empty">Chargement des données...</div>
 </section>
 </div>
-<div class="footer">Partagé en ligne — Mises à jour automatiques.</div>
+<div class="footer">Partagé en temps réel.</div>
 </div>
 
 <script>
-// Serveur de stockage partagé en ligne
-const DB_URL = "https://kvdb.io/4E4E6E3S6bXpW1G7g8K4P9/feuilles_wyz_champs";
+// Connexion au serveur de stockage centralisé (Supabase)
+const SUPABASE_URL = "https://aomakujvczikstrmxndw.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvbWFrdWp2Y3ppa3N0cm14bmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU2MDAwMDAsImV4cCI6MjAzMTE3NjAwMH0.J2Q4P5N98mX_5_Y_K_Z_E_L_O_P_Q_R";
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = localStorage.getItem("feuilles_user") || "";
 let globalData = [];
 
 function initUser() {
   while (!currentUser) {
-    currentUser = prompt("Entrez votre pseudo / prénom :") || "";
+    currentUser = prompt("Entrez votre pseudo / prénom pour vous connecter :") || "";
     currentUser = currentUser.trim();
   }
   localStorage.setItem("feuilles_user", currentUser);
@@ -105,36 +108,16 @@ const now = new Date();
 $("date").value = now.toISOString().slice(0, 10);
 $("time").value = now.toTimeString().slice(0, 5);
 
-// Récupération des données partagées
-async function fetchData() {
+// Charger les données partagées
+async function loadData() {
   try {
-    const res = await fetch(DB_URL);
-    if (res.ok) {
-      globalData = await res.json();
-    } else {
-      globalData = [];
+    const { data, error } = await _sb.from('feuilles').select('*');
+    if (!error && data) {
+      globalData = data;
+      render();
     }
-    render();
   } catch (err) {
-    console.error("Erreur de chargement :", err);
-  }
-}
-
-// Sauvegarde des données sur le serveur
-async function saveData() {
-  $("submitBtn").disabled = true;
-  $("submitBtn").textContent = "Envoi en cours...";
-  try {
-    await fetch(DB_URL, {
-      method: "POST",
-      body: JSON.stringify(globalData)
-    });
-    await fetchData();
-  } catch (err) {
-    alert("Erreur lors de la sauvegarde.");
-  } finally {
-    $("submitBtn").disabled = false;
-    $("submitBtn").textContent = "Ajouter à mon compte";
+    console.error("Erreur de chargement", err);
   }
 }
 
@@ -173,6 +156,9 @@ function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<"
 
 $("form").addEventListener("submit", async e => {
   e.preventDefault();
+  $("submitBtn").disabled = true;
+  $("submitBtn").textContent = "Envoi en cours...";
+
   const newEntry = {
     id: crypto.randomUUID(),
     name: currentUser,
@@ -181,24 +167,33 @@ $("form").addEventListener("submit", async e => {
     time: $("time").value
   };
 
-  globalData.push(newEntry);
-  $("form").reset();
-  $("date").value = now.toISOString().slice(0, 10);
-  $("time").value = now.toTimeString().slice(0, 5);
-
-  await saveData();
+  try {
+    const { error } = await _sb.from('feuilles').insert([newEntry]);
+    if (error) alert("Erreur d'enregistrement : " + error.message);
+    else {
+      $("form").reset();
+      $("date").value = now.toISOString().slice(0, 10);
+      $("time").value = now.toTimeString().slice(0, 5);
+      await loadData();
+    }
+  } catch (err) {
+    alert("Erreur de connexion.");
+  } finally {
+    $("submitBtn").disabled = false;
+    $("submitBtn").textContent = "Ajouter à mon compte";
+  }
 });
 
 async function removeEntry(id) {
   if (confirm("Voulez-vous supprimer ce dépôt ?")) {
-    globalData = globalData.filter(x => x.id !== id);
-    await saveData();
+    await _sb.from('feuilles').delete().eq('id', id);
+    await loadData();
   }
 }
 
-// Chargement initial + rafraîchissement automatique toutes les 4 secondes
-fetchData();
-setInterval(fetchData, 4000);
+// Rechargement initial et rafraîchissement automatique toutes les 3 secondes
+loadData();
+setInterval(loadData, 3000);
 </script>
 </body>
 </html>
