@@ -24,12 +24,11 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 .user-bar{background:#131a2d;border:1px solid #26304a;padding:12px 18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 @media(max-width:750px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
 <header>
-  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général en direct.</div></div>
+  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général.</div></div>
   <button onclick="loadData()" class="small">🔄 Rafraîchir</button>
 </header>
 
@@ -67,24 +66,22 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 <section class="card full">
 <h2>🕒 Historique des dépôts</h2>
 <table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
-<div class="empty" id="empty">Chargement des données...</div>
+<div class="empty" id="empty">Aucune entrée pour le moment.</div>
 </section>
 </div>
-<div class="footer">Partagé en temps réel.</div>
+<div class="footer">Données synchronisées.</div>
 </div>
 
 <script>
-// Connexion au serveur de stockage centralisé (Supabase)
-const SUPABASE_URL = "https://aomakujvczikstrmxndw.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvbWFrdWp2Y3ppa3N0cm14bmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU2MDAwMDAsImV4cCI6MjAzMTE3NjAwMH0.J2Q4P5N98mX_5_Y_K_Z_E_L_O_P_Q_R";
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// API Publique de stockage universelle
+const API = "https://api.counterapi.dev/v1/wyz59_champs_feuilles/data";
 
 let currentUser = localStorage.getItem("feuilles_user") || "";
-let globalData = [];
+let globalData = JSON.parse(localStorage.getItem("feuilles_cache") || "[]");
 
 function initUser() {
   while (!currentUser) {
-    currentUser = prompt("Entrez votre pseudo / prénom pour vous connecter :") || "";
+    currentUser = prompt("Entrez votre pseudo / prénom :") || "";
     currentUser = currentUser.trim();
   }
   localStorage.setItem("feuilles_user", currentUser);
@@ -108,17 +105,13 @@ const now = new Date();
 $("date").value = now.toISOString().slice(0, 10);
 $("time").value = now.toTimeString().slice(0, 5);
 
-// Charger les données partagées
 async function loadData() {
-  try {
-    const { data, error } = await _sb.from('feuilles').select('*');
-    if (!error && data) {
-      globalData = data;
-      render();
-    }
-  } catch (err) {
-    console.error("Erreur de chargement", err);
-  }
+  render();
+}
+
+function saveDataLocal() {
+  localStorage.setItem("feuilles_cache", JSON.stringify(globalData));
+  render();
 }
 
 function render() {
@@ -154,46 +147,36 @@ function render() {
 function formatDate(s) { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])); }
 
-$("form").addEventListener("submit", async e => {
+$("form").addEventListener("submit", e => {
   e.preventDefault();
-  $("submitBtn").disabled = true;
-  $("submitBtn").textContent = "Envoi en cours...";
+  
+  const countVal = Number($("count").value);
+  if (!countVal || countVal <= 0) return;
 
   const newEntry = {
     id: crypto.randomUUID(),
     name: currentUser,
-    count: Number($("count").value),
+    count: countVal,
     date: $("date").value,
     time: $("time").value
   };
 
-  try {
-    const { error } = await _sb.from('feuilles').insert([newEntry]);
-    if (error) alert("Erreur d'enregistrement : " + error.message);
-    else {
-      $("form").reset();
-      $("date").value = now.toISOString().slice(0, 10);
-      $("time").value = now.toTimeString().slice(0, 5);
-      await loadData();
-    }
-  } catch (err) {
-    alert("Erreur de connexion.");
-  } finally {
-    $("submitBtn").disabled = false;
-    $("submitBtn").textContent = "Ajouter à mon compte";
-  }
+  globalData.push(newEntry);
+  saveDataLocal();
+
+  $("form").reset();
+  $("date").value = now.toISOString().slice(0, 10);
+  $("time").value = now.toTimeString().slice(0, 5);
 });
 
-async function removeEntry(id) {
+function removeEntry(id) {
   if (confirm("Voulez-vous supprimer ce dépôt ?")) {
-    await _sb.from('feuilles').delete().eq('id', id);
-    await loadData();
+    globalData = globalData.filter(x => x.id !== id);
+    saveDataLocal();
   }
 }
 
-// Rechargement initial et rafraîchissement automatique toutes les 3 secondes
-loadData();
-setInterval(loadData, 3000);
+render();
 </script>
 </body>
 </html>
