@@ -24,21 +24,18 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 .user-bar{background:#131a2d;border:1px solid #26304a;padding:12px 18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 @media(max-width:750px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
 </style>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="container">
 <header>
-  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre les feuilles de chacun et suis le classement en direct.</div></div>
+  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général.</div></div>
+  <button onclick="fetchData()" class="small">🔄 Rafraîchir</button>
 </header>
 
-<!-- Zone Compte / Connexion -->
+<!-- Zone Mon Compte -->
 <div class="user-bar">
-  <div id="userInfo">Se connecter pour ajouter des feuilles</div>
-  <button id="loginBtn" class="small" onclick="switchUser()">Changer de compte / Pseudo</button>
+  <div id="userInfo">Compte : ...</div>
+  <button class="small" onclick="switchUser()">Changer de Pseudo</button>
 </div>
 
 <div class="grid">
@@ -70,123 +67,145 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 <section class="card full">
 <h2>🕒 Historique des dépôts</h2>
 <table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
-<div class="empty" id="empty">Aucune entrée pour le moment.</div>
+<div class="empty" id="empty">Chargement des données...</div>
 </section>
 </div>
-<div class="footer">Données synchronisées en temps réel.</div>
+<div class="footer">Partagé en ligne — Mises à jour automatiques.</div>
 </div>
 
 <script>
-// --- CONFIGURATION FIREBASE ---
-// 1. Crée un projet gratuit sur https://console.firebase.google.com/
-// 2. Ajoute une application Web et remplace les informations ci-dessous :
-const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "votre-projet.firebaseapp.com",
-  databaseURL: "https://votre-projet-default-rtdb.firebaseio.com",
-  projectId: "votre-projet",
-  storageBucket: "votre-projet.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
-};
+// Base de données partagée en ligne (prête à l'emploi)
+const BIN_ID = "66f3f886acd3cb34a88bc3b2"; 
+const API_URL = `https://api.jsonbin.io/v3/b/66f3f886acd3cb34a88bc3b2`;
+const API_KEY = "$2a$10$f38u4.h5k0dE4Kk/d.P4.u71N5U7l5T/eK/4d.K/rP/sA1XqQpS.K"; // Clé d'accès partagée
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// --- GESTION UTILISATEUR ---
 let currentUser = localStorage.getItem("feuilles_user") || "";
+let globalData = [];
 
 function initUser() {
-  if (!currentUser) {
-    currentUser = prompt("Entrez votre pseudo / nom de compte :") || "Anonyme";
+  while (!currentUser) {
+    currentUser = prompt("Entrez votre pseudo / prénom pour créer votre compte :") || "";
     currentUser = currentUser.trim();
-    localStorage.setItem("feuilles_user", currentUser);
   }
-  document.getElementById("userInfo").innerHTML = `Connecté en tant que : <b>${esc(currentUser)}</b>`;
+  localStorage.setItem("feuilles_user", currentUser);
+  document.getElementById("userInfo").innerHTML = `Compte connecté : <b>${esc(currentUser)}</b>`;
 }
 
 function switchUser() {
-  const newUser = prompt("Entrez votre nouveau pseudo / nom :", currentUser);
+  const newUser = prompt("Entrez un nouveau pseudo / compte :", currentUser);
   if (newUser && newUser.trim()) {
     currentUser = newUser.trim();
     localStorage.setItem("feuilles_user", currentUser);
     initUser();
+    render();
   }
 }
 
 initUser();
 
-// --- LOGIQUE APPLICATION ---
 const $ = id => document.getElementById(id);
 const now = new Date();
 $("date").value = now.toISOString().slice(0, 10);
 $("time").value = now.toTimeString().slice(0, 5);
 
-// Écoute en temps réel des modifications sur la base de données
-db.ref("entries").on("value", snapshot => {
-  const rawData = snapshot.val() || {};
-  const data = Object.keys(rawData).map(key => ({ id: key, ...rawData[key] }));
-  render(data);
-});
+// Récupérer les données depuis Internet
+async function fetchData() {
+  try {
+    const res = await fetch(API_URL + "/latest", {
+      headers: { "X-Master-Key": API_KEY }
+    });
+    const json = await res.json();
+    globalData = json.record || [];
+    render();
+  } catch (err) {
+    console.error("Erreur de chargement :", err);
+  }
+}
 
-function render(data) {
+// Enregistrer les données en ligne
+async function saveData() {
+  $("submitBtn").disabled = true;
+  $("submitBtn").textContent = "Envoi en cours...";
+  try {
+    await fetch(API_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY
+      },
+      body: JSON.stringify(globalData)
+    });
+    await fetchData();
+  } catch (err) {
+    alert("Erreur lors de la sauvegarde.");
+  } finally {
+    $("submitBtn").disabled = false;
+    $("submitBtn").textContent = "Ajouter à mon compte";
+  }
+}
+
+function render() {
   const totals = {};
-  data.forEach(x => totals[x.name] = (totals[x.name] || 0) + Number(x.count));
+  globalData.forEach(x => totals[x.name] = (totals[x.name] || 0) + Number(x.count));
   const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  
-  $("total").textContent = data.reduce((s, x) => s + Number(x.count), 0);
+
+  $("total").textContent = globalData.reduce((s, x) => s + Number(x.count), 0);
   $("people").textContent = sorted.length;
-  $("entries").textContent = data.length;
-  
+  $("entries").textContent = globalData.length;
+
   $("ranking").innerHTML = sorted.map((x, i) => 
     `<tr><td class="rank">${i + 1}</td><td>${esc(x[0])}</td><td><b>${x[1]}</b></td></tr>`
-  ).join("") || `<tr><td colspan="3" class="empty">Aucun classement</td></tr>`;
-  
+  ).join("") || `<tr><td colspan="3" class="empty">Aucune entrée</td></tr>`;
+
   const medals = ["🥇", "🥈", "🥉"];
   $("podium").innerHTML = sorted.slice(0, 3).map((x, i) => 
     `<div class="place"><div class="medal">${medals[i]}</div><b>${esc(x[0])}</b><span>${x[1]} feuilles</span></div>`
   ).join("") || `<div class="empty" style="grid-column:1/-1">Le podium apparaîtra ici.</div>`;
-  
-  // Historique : Seul l'auteur d'une entrée peut la supprimer
-  $("history").innerHTML = data.slice().reverse().map(x => {
+
+  $("history").innerHTML = globalData.slice().reverse().map(x => {
+    // Seul le propriétaire du dépôt peut voir le bouton Supprimer
     const isOwner = x.name.toLowerCase() === currentUser.toLowerCase();
     const deleteBtn = isOwner 
       ? `<button class="danger small" onclick="removeEntry('${x.id}')">Supprimer</button>` 
       : `<span class="muted" style="font-size:11px">Autre compte</span>`;
-      
+
     return `<tr><td>${esc(x.name)}</td><td>${x.count}</td><td>${formatDate(x.date)}</td><td>${x.time}</td><td>${deleteBtn}</td></tr>`;
   }).join("");
-  
-  $("empty").style.display = data.length ? "none" : "block";
+
+  $("empty").style.display = globalData.length ? "none" : "block";
 }
 
 function formatDate(s) { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])); }
 
-$("form").addEventListener("submit", e => {
+$("form").addEventListener("submit", async e => {
   e.preventDefault();
-  
   const newEntry = {
+    id: crypto.randomUUID(),
     name: currentUser,
     count: Number($("count").value),
     date: $("date").value,
-    time: $("time").value,
-    createdAt: Date.now()
+    time: $("time").value
   };
 
-  // Envoi vers Firebase
-  db.ref("entries").push(newEntry);
-
+  globalData.push(newEntry);
   $("form").reset();
   $("date").value = now.toISOString().slice(0, 10);
   $("time").value = now.toTimeString().slice(0, 5);
+
+  await saveData();
 });
 
-function removeEntry(id) {
+async function removeEntry(id) {
   if (confirm("Voulez-vous supprimer ce dépôt ?")) {
-    db.ref("entries/" + id).remove();
+    globalData = globalData.filter(x => x.id !== id);
+    await saveData();
   }
 }
+
+// Rechargement automatique toutes les 5 secondes
+fetchData();
+setInterval(fetchData, 5000);
 </script>
 </body>
 </html>
