@@ -32,7 +32,6 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
   <button onclick="fetchData()" class="small">🔄 Rafraîchir</button>
 </header>
 
-<!-- Zone Mon Compte -->
 <div class="user-bar">
   <div id="userInfo">Compte : ...</div>
   <button class="small" onclick="switchUser()">Changer de Pseudo</button>
@@ -67,24 +66,22 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px
 <section class="card full">
 <h2>🕒 Historique des dépôts</h2>
 <table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
-<div class="empty" id="empty">Chargement des données...</div>
+<div class="empty" id="empty">Aucune entrée pour le moment.</div>
 </section>
 </div>
 <div class="footer">Partagé en ligne — Mises à jour automatiques.</div>
 </div>
 
 <script>
-// Base de données partagée en ligne (prête à l'emploi)
-const BIN_ID = "66f3f886acd3cb34a88bc3b2"; 
-const API_URL = `https://api.jsonbin.io/v3/b/66f3f886acd3cb34a88bc3b2`;
-const API_KEY = "$2a$10$f38u4.h5k0dE4Kk/d.P4.u71N5U7l5T/eK/4d.K/rP/sA1XqQpS.K"; // Clé d'accès partagée
+// Serveur de stockage partagé en ligne
+const DB_URL = "https://kvdb.io/4E4E6E3S6bXpW1G7g8K4P9/feuilles_wyz_champs";
 
 let currentUser = localStorage.getItem("feuilles_user") || "";
 let globalData = [];
 
 function initUser() {
   while (!currentUser) {
-    currentUser = prompt("Entrez votre pseudo / prénom pour créer votre compte :") || "";
+    currentUser = prompt("Entrez votre pseudo / prénom :") || "";
     currentUser = currentUser.trim();
   }
   localStorage.setItem("feuilles_user", currentUser);
@@ -108,31 +105,28 @@ const now = new Date();
 $("date").value = now.toISOString().slice(0, 10);
 $("time").value = now.toTimeString().slice(0, 5);
 
-// Récupérer les données depuis Internet
+// Récupération des données partagées
 async function fetchData() {
   try {
-    const res = await fetch(API_URL + "/latest", {
-      headers: { "X-Master-Key": API_KEY }
-    });
-    const json = await res.json();
-    globalData = json.record || [];
+    const res = await fetch(DB_URL);
+    if (res.ok) {
+      globalData = await res.json();
+    } else {
+      globalData = [];
+    }
     render();
   } catch (err) {
     console.error("Erreur de chargement :", err);
   }
 }
 
-// Enregistrer les données en ligne
+// Sauvegarde des données sur le serveur
 async function saveData() {
   $("submitBtn").disabled = true;
   $("submitBtn").textContent = "Envoi en cours...";
   try {
-    await fetch(API_URL, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Master-Key": API_KEY
-      },
+    await fetch(DB_URL, {
+      method: "POST",
       body: JSON.stringify(globalData)
     });
     await fetchData();
@@ -163,7 +157,6 @@ function render() {
   ).join("") || `<div class="empty" style="grid-column:1/-1">Le podium apparaîtra ici.</div>`;
 
   $("history").innerHTML = globalData.slice().reverse().map(x => {
-    // Seul le propriétaire du dépôt peut voir le bouton Supprimer
     const isOwner = x.name.toLowerCase() === currentUser.toLowerCase();
     const deleteBtn = isOwner 
       ? `<button class="danger small" onclick="removeEntry('${x.id}')">Supprimer</button>` 
@@ -203,9 +196,9 @@ async function removeEntry(id) {
   }
 }
 
-// Rechargement automatique toutes les 5 secondes
+// Chargement initial + rafraîchissement automatique toutes les 4 secondes
 fetchData();
-setInterval(fetchData, 5000);
+setInterval(fetchData, 4000);
 </script>
 </body>
 </html>
