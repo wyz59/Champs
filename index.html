@@ -4,61 +4,431 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>La Chinoiserie — Boutique</title>
+
 <style>
-:root{color-scheme:light dark;--bg:#090909;--surface:#111;--surface2:#181818;--text:#f5f5f5;--muted:#aaa;--accent:#e50914;--border:#2b2b2b}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
-body{background:#090909}.app{min-height:100vh;background:var(--bg)}
-header{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);background:rgba(9,9,9,.94);backdrop-filter:blur(12px)}
-.nav{max-width:1200px;margin:auto;padding:16px 22px;display:flex;align-items:center;gap:22px}.logo{font-weight:900;letter-spacing:1px;font-size:20px}.logo span{color:var(--accent)}
-nav{display:flex;gap:16px;flex:1}nav button,.nav button{background:none;border:0;color:var(--text);cursor:pointer;font-weight:700}.pill{border:1px solid var(--border)!important;background:var(--surface2)!important;border-radius:12px;padding:9px 13px}
-.hero{max-width:1200px;margin:auto;padding:72px 22px 38px;display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center}.hero h1{font-size:clamp(42px,7vw,78px);line-height:.95;margin:0 0 20px}.hero p{color:var(--muted);font-size:18px;max-width:650px}.cta{display:flex;gap:12px;margin-top:24px}.btn{border:0;border-radius:12px;padding:13px 17px;font-weight:900;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.heroCard{min-height:300px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,#1b1b1b,#0d0d0d);display:grid;place-items:center;text-align:center;padding:30px}.heroCard strong{font-size:46px}.heroCard small{color:var(--muted)}
-section{max-width:1200px;margin:auto;padding:34px 22px}.sectionTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.sectionTitle h2{margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{border:1px solid var(--border);background:var(--surface);border-radius:18px;overflow:hidden}.thumb{height:180px;background:linear-gradient(135deg,#262626,#101010);display:grid;place-items:center;font-size:42px;font-weight:900}.content{padding:17px}.content h3{margin:0 0 8px}.content p{color:var(--muted);margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.price{font-weight:900}
-.admin{display:none;border-top:1px solid var(--border);background:#0d0d0d}.admin.open{display:block}.adminGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:var(--muted)}input,textarea,select{width:100%;border:1px solid var(--border);background:#151515;color:var(--text);border-radius:10px;padding:11px}textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}
-.cart{position:fixed;right:18px;bottom:18px;z-index:20;background:var(--accent);color:white;border:0;border-radius:999px;padding:14px 18px;font-weight:900;cursor:pointer;box-shadow:0 10px 30px #0008}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:30;padding:20px}.modal.show{display:flex}.modalBox{width:min(520px,100%);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px}.modalTop{display:flex;justify-content:space-between;align-items:center}.modalTop button{background:none;border:0;color:var(--text);font-size:25px;cursor:pointer}.cartItem{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-footer{max-width:1200px;margin:auto;padding:35px 22px 50px;color:var(--muted);border-top:1px solid var(--border)}
-@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:45px}.grid{grid-template-columns:1fr}.adminGrid{grid-template-columns:1fr}nav{display:none}.heroCard{min-height:210px}}
+:root{
+color-scheme:light dark;
+--bg:#090909;
+--surface:#111;
+--surface2:#181818;
+--text:#f5f5f5;
+--muted:#aaa;
+--accent:#e50914;
+--border:#2b2b2b
+}
+
+*{box-sizing:border-box}
+
+html,body{
+margin:0;
+min-height:100%;
+font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+background:var(--bg);
+color:var(--text)
+}
+
+body{background:#090909}
+.app{min-height:100vh;background:var(--bg)}
+
+header{
+position:sticky;
+top:0;
+z-index:10;
+border-bottom:1px solid var(--border);
+background:rgba(9,9,9,.94);
+backdrop-filter:blur(12px)
+}
+
+.nav{
+max-width:1200px;
+margin:auto;
+padding:16px 22px;
+display:flex;
+align-items:center;
+gap:22px
+}
+
+.logo{
+font-weight:900;
+letter-spacing:1px;
+font-size:20px
+}
+
+.logo span{color:var(--accent)}
+
+nav{
+display:flex;
+gap:16px;
+flex:1
+}
+
+nav button,.nav button{
+background:none;
+border:0;
+color:var(--text);
+cursor:pointer;
+font-weight:700
+}
+
+.pill{
+border:1px solid var(--border)!important;
+background:var(--surface2)!important;
+border-radius:12px;
+padding:9px 13px
+}
+
+.hero{
+max-width:1200px;
+margin:auto;
+padding:72px 22px 38px;
+display:grid;
+grid-template-columns:1.2fr .8fr;
+gap:30px;
+align-items:center
+}
+
+.hero h1{
+font-size:clamp(42px,7vw,78px);
+line-height:.95;
+margin:0 0 20px
+}
+
+.hero p{
+color:var(--muted);
+font-size:18px;
+max-width:650px
+}
+
+.cta{
+display:flex;
+gap:12px;
+margin-top:24px
+}
+
+.btn{
+border:0;
+border-radius:12px;
+padding:13px 17px;
+font-weight:900;
+cursor:pointer
+}
+
+.primary{
+background:var(--accent);
+color:white
+}
+
+.secondary{
+background:var(--surface2);
+color:var(--text);
+border:1px solid var(--border)
+}
+
+.heroCard{
+min-height:300px;
+border:1px solid var(--border);
+border-radius:24px;
+background:linear-gradient(145deg,#1b1b1b,#0d0d0d);
+display:grid;
+place-items:center;
+text-align:center;
+padding:30px
+}
+
+.heroCard strong{font-size:46px}
+.heroCard small{color:var(--muted)}
+
+section{
+max-width:1200px;
+margin:auto;
+padding:34px 22px
+}
+
+.sectionTitle{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px
+}
+
+.sectionTitle h2{margin:0}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px
+}
+
+.card{
+border:1px solid var(--border);
+background:var(--surface);
+border-radius:18px;
+overflow:hidden
+}
+
+.thumb{
+height:180px;
+background:linear-gradient(135deg,#262626,#101010);
+display:grid;
+place-items:center;
+font-size:42px;
+font-weight:900
+}
+
+.content{padding:17px}
+
+.content h3{
+margin:0 0 8px
+}
+
+.content p{
+color:var(--muted);
+margin:0 0 15px
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px
+}
+
+.price{font-weight:900}
+
+.admin{
+display:none;
+border-top:1px solid var(--border);
+background:#0d0d0d
+}
+
+.admin.open{display:block}
+
+.adminGrid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px
+}
+
+.field{
+display:grid;
+gap:6px
+}
+
+.field label{
+font-size:13px;
+color:var(--muted)
+}
+
+input,textarea,select{
+width:100%;
+border:1px solid var(--border);
+background:#151515;
+color:var(--text);
+border-radius:10px;
+padding:11px
+}
+
+textarea{
+min-height:90px;
+resize:vertical
+}
+
+.full{grid-column:1/-1}
+
+.cart{
+position:fixed;
+right:18px;
+bottom:18px;
+z-index:20;
+background:var(--accent);
+color:white;
+border:0;
+border-radius:999px;
+padding:14px 18px;
+font-weight:900;
+cursor:pointer;
+box-shadow:0 10px 30px #0008
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:#000b;
+display:none;
+align-items:center;
+justify-content:center;
+z-index:30;
+padding:20px
+}
+
+.modal.show{display:flex}
+
+.modalBox{
+width:min(520px,100%);
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:18px;
+padding:22px
+}
+
+.modalTop{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.modalTop button{
+background:none;
+border:0;
+color:var(--text);
+font-size:25px;
+cursor:pointer
+}
+
+.cartItem{
+display:flex;
+justify-content:space-between;
+padding:12px 0;
+border-bottom:1px solid var(--border)
+}
+
+footer{
+max-width:1200px;
+margin:auto;
+padding:35px 22px 50px;
+color:var(--muted);
+border-top:1px solid var(--border)
+}
+
+@media(max-width:800px){
+.hero{
+grid-template-columns:1fr;
+padding-top:45px
+}
+
+.grid{
+grid-template-columns:1fr
+}
+
+.adminGrid{
+grid-template-columns:1fr
+}
+
+nav{display:none}
+
+.heroCard{
+min-height:210px
+}
+}
 </style>
 </head>
+
 <body>
+
 <div class="app" id="app">
-<header><div class="nav"><div class="logo" id="logo">LA <span>CHINOISERIE</span></div><nav><button onclick="scrollToId('products')">Produits</button><button onclick="scrollToId('about')">À propos</button><button onclick="openDiscord()">Discord</button></nav><button class="pill" onclick="toggleAdmin()">⚙ Admin</button></div></header>
+
+<header>
+<div class="nav">
+
+<div class="logo" id="logo">
+LA <span>CHINOISERIE</span>
+</div>
+
+<nav>
+<button onclick="scrollToId('products')">Produits</button>
+<button onclick="scrollToId('about')">À propos</button>
+<button onclick="openDiscord()">Discord</button>
+</nav>
+
+<button class="pill" onclick="requestAdmin()">
+⚙ Admin
+</button>
+
+</div>
+</header>
 
 <main>
+
 <section class="hero">
+
 <div>
-<div class="pill" style="display:inline-block">BOUTIQUE OFFICIELLE</div>
-<h1 id="heroTitle">La Chinoiserie</h1>
-<p id="heroText">Un espace simple pour présenter tes produits, tes offres et ta communauté.</p>
+
+<div class="pill" style="display:inline-block">
+BOUTIQUE OFFICIELLE
+</div>
+
+<h1 id="heroTitle">
+La Chinoiserie
+</h1>
+
+<p id="heroText">
+Un espace simple pour présenter tes produits, tes offres et ta communauté.
+</p>
+
 <div class="cta">
-<button class="btn primary" onclick="scrollToId('products')">Voir les produits</button>
-<button class="btn secondary" onclick="openDiscord()">Rejoindre Discord</button>
+
+<button class="btn primary" onclick="scrollToId('products')">
+Voir les produits
+</button>
+
+<button class="btn secondary" onclick="openDiscord()">
+Rejoindre Discord
+</button>
+
 </div>
+
 </div>
+
 <div class="heroCard">
-<div><strong>🛍️</strong><br><small>Personnalise ce bloc depuis l'espace admin</small></div>
+
+<div>
+<strong>🛍️</strong>
+<br>
+<small>
+Personnalise ce bloc depuis l'espace admin
+</small>
 </div>
+
+</div>
+
 </section>
 
 <section id="products">
+
 <div class="sectionTitle">
+
 <h2>Produits</h2>
+
 <span id="productCount" style="color:var(--muted)"></span>
+
 </div>
+
 <div class="grid" id="productGrid"></div>
+
 </section>
 
 <section id="about">
-<div class="sectionTitle"><h2>À propos</h2></div>
+
+<div class="sectionTitle">
+<h2>À propos</h2>
+</div>
+
 <p id="aboutText" style="color:var(--muted);max-width:800px">
 Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix et le lien Discord depuis le panneau admin.
 </p>
+
 </section>
 
 <section class="admin" id="admin">
+
 <div class="sectionTitle">
+
 <h2>⚙️ Administration</h2>
-<button class="btn secondary" onclick="toggleAdmin()">Fermer</button>
+
+<button class="btn secondary" onclick="toggleAdmin()">
+Fermer
+</button>
+
 </div>
 
 <div class="adminGrid">
@@ -88,6 +458,7 @@ Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix 
 <input id="aDiscord">
 </div>
 
+
 <div class="field">
 <label>Produit 1 — nom</label>
 <input id="p1n">
@@ -99,10 +470,18 @@ Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix 
 </div>
 
 <div class="field full">
-<img id="p1preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
-<label>Produit 1 — contenu reçu</label>
+
+<img id="p1preview"
+style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+
+<label>
+Produit 1 — contenu reçu
+</label>
+
 <textarea id="p1c"></textarea>
+
 </div>
+
 
 <div class="field">
 <label>Produit 2 — nom</label>
@@ -115,10 +494,18 @@ Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix 
 </div>
 
 <div class="field full">
-<img id="p2preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
-<label>Produit 2 — contenu reçu</label>
+
+<img id="p2preview"
+style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+
+<label>
+Produit 2 — contenu reçu
+</label>
+
 <textarea id="p2c"></textarea>
+
 </div>
+
 
 <div class="field">
 <label>Produit 3 — nom</label>
@@ -131,251 +518,617 @@ Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix 
 </div>
 
 <div class="field full">
-<img id="p3preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
-<label>Produit 3 — contenu reçu</label>
+
+<img id="p3preview"
+style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+
+<label>
+Produit 3 — contenu reçu
+</label>
+
 <textarea id="p3c"></textarea>
+
 </div>
 
+
 <div class="full">
-<button class="btn primary" onclick="saveSettings()">💾 Enregistrer les modifications</button>
-<button class="btn secondary" onclick="resetSettings()">Réinitialiser</button>
+
+<button class="btn primary" onclick="saveSettings()">
+💾 Enregistrer les modifications
+</button>
+
+<button class="btn secondary" onclick="resetSettings()">
+Réinitialiser
+</button>
+
 </div>
 
 </div>
 </section>
+
 </main>
 
 <footer>
-© <span id="year"></span> <span id="footName">La Chinoiserie</span> — Site personnalisable
+
+© <span id="year"></span>
+<span id="footName">La Chinoiserie</span>
+— Site personnalisable
+
 </footer>
 
-<button class="cart" onclick="openCart()">🛒 Panier <span id="cartCount">0</span></button>
+<button class="cart" onclick="openCart()">
+🛒 Panier <span id="cartCount">0</span>
+</button>
+
 </div>
+
 
 <div class="modal" id="modal">
+
 <div class="modalBox">
+
 <div class="modalTop">
+
 <h2>Mon panier</h2>
+
 <button onclick="closeCart()">×</button>
+
 </div>
+
 <div id="cartItems"></div>
+
 <div class="row" style="margin-top:18px">
+
 <strong>Total</strong>
-<strong id="total">GRATUIT</strong>
+
+<strong id="total">
+GRATUIT
+</strong>
+
 </div>
-<button class="btn primary" style="width:100%;margin-top:16px" onclick="validateOrder()">✅ Valider la commande</button>
+
+<button
+class="btn primary"
+style="width:100%;margin-top:16px"
+onclick="validateOrder()">
+
+✅ Valider la commande
+
+</button>
+
 </div>
 </div>
+
 
 <div class="modal" id="receipt">
+
 <div class="modalBox">
+
 <div class="modalTop">
+
 <h2>🧾 Reçu de commande</h2>
+
 <button onclick="closeReceipt()">×</button>
+
 </div>
-<p style="color:var(--muted)">Commande validée avec succès.</p>
+
+<p style="color:var(--muted)">
+Commande validée avec succès.
+</p>
+
 <div id="receiptItems"></div>
-<button class="btn primary" style="width:100%;margin-top:16px" onclick="closeReceipt()">Fermer</button>
+
+<button
+class="btn primary"
+style="width:100%;margin-top:16px"
+onclick="closeReceipt()">
+
+Fermer
+
+</button>
+
 </div>
 </div>
+
 
 <script>
+
 const defaults={
+
 name:'La Chinoiserie',
+
 title:'La Chinoiserie',
+
 hero:'Un espace simple pour présenter tes produits, tes offres et ta communauté.',
+
 about:'Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les images et le contenu reçu depuis le panneau admin.',
+
 discord:'https://discord.gg/sKSPH7GfQ9',
+
 products:[
-{name:'Produit 1',price:'GRATUIT',content:'Contenu du Produit 1',icon:'🔥'},
-{name:'Produit 2',price:'GRATUIT',content:'Contenu du Produit 2',icon:'⚡'},
-{name:'Produit 3',price:'GRATUIT',content:'Contenu du Produit 3',icon:'💎'}
-]
-};
 
-let settings=JSON.parse(localStorage.getItem('siteSettings')||'null')||defaults;
-let cart=[];
+{
+name:'Produit 1',
+price:'GRATUIT',
+content:'Contenu du Produit 1',
+icon:'🔥'
+},
 
-function render(){
-document.getElementById('logo').innerHTML=(settings.name||'Site').toUpperCase();
-document.getElementById('heroTitle').textContent=settings.title;
-document.getElementById('heroText').textContent=settings.hero;
-document.getElementById('aboutText').textContent=settings.about;
-document.getElementById('footName').textContent=settings.name;
-document.getElementById('year').textContent=new Date().getFullYear();
-document.getElementById('productCount').textContent=settings.products.length+' produits';
+{
+name:'Produit 2',
+price:'GRATUIT',
+content:'Contenu du Produit 2',
+icon:'⚡'
+},
 
-document.getElementById('productGrid').innerHTML=settings.products.map((p,i)=>`
-<article class="card">
-<div class="thumb">
-${p.image
-?`<img src="${escapeHtml(p.image)}" style="width:100%;height:100%;object-fit:cover;display:block">`
-:p.icon}
-</div>
-<div class="content">
-<h3>${escapeHtml(p.name)}</h3>
-<p>Produit personnalisable depuis l'admin.</p>
-<div class="row">
-<span class="price">${escapeHtml(p.price)}</span>
-<button class="btn primary" onclick="addToCart(${i})">Ajouter</button>
-</div>
-</div>
-</article>
-`).join('');
-
-fillAdmin();
-updateCart();
+{
+name:'Produit 3',
+price:'GRATUIT',
+content:'Contenu du Produit 3',
+icon:'💎'
 }
 
+]
+
+};
+
+
+let settings=
+JSON.parse(localStorage.getItem('siteSettings')||'null')
+||defaults;
+
+let cart=[];
+
+
+function render(){
+
+document.getElementById('logo').innerHTML=
+(settings.name||'Site').toUpperCase();
+
+document.getElementById('heroTitle').textContent=
+settings.title;
+
+document.getElementById('heroText').textContent=
+settings.hero;
+
+document.getElementById('aboutText').textContent=
+settings.about;
+
+document.getElementById('footName').textContent=
+settings.name;
+
+document.getElementById('year').textContent=
+new Date().getFullYear();
+
+document.getElementById('productCount').textContent=
+settings.products.length+' produits';
+
+
+document.getElementById('productGrid').innerHTML=
+
+settings.products.map((p,i)=>`
+
+<article class="card">
+
+<div class="thumb">
+
+${
+p.image
+?
+`<img
+src="${escapeHtml(p.image)}"
+style="width:100%;height:100%;object-fit:cover;display:block">`
+:
+p.icon
+}
+
+</div>
+
+<div class="content">
+
+<h3>
+${escapeHtml(p.name)}
+</h3>
+
+<p>
+Produit personnalisable depuis l'admin.
+</p>
+
+<div class="row">
+
+<span class="price">
+${escapeHtml(p.price)}
+</span>
+
+<button
+class="btn primary"
+onclick="addToCart(${i})">
+
+Ajouter
+
+</button>
+
+</div>
+
+</div>
+
+</article>
+
+`).join('');
+
+
+fillAdmin();
+
+updateCart();
+
+}
+
+
 function escapeHtml(s){
+
 return String(s).replace(/[&<>'"]/g,c=>({
+
 '&':'&amp;',
 '<':'&lt;',
 '>':'&gt;',
 "'":'&#39;',
 '"':'&quot;'
+
 }[c]));
+
 }
+
 
 function fillAdmin(){
+
 aLogo.value=settings.name;
+
 aTitle.value=settings.title;
+
 aHero.value=settings.hero;
+
 aAbout.value=settings.about;
+
 aDiscord.value=settings.discord;
 
+
 settings.products.forEach((p,i)=>{
-document.getElementById('p'+(i+1)+'n').value=p.name;
-document.getElementById('p'+(i+1)+'c').value=p.content||'';
+
+document.getElementById(
+'p'+(i+1)+'n'
+).value=p.name;
+
+document.getElementById(
+'p'+(i+1)+'c'
+).value=p.content||'';
+
 
 if(p.image){
-document.getElementById('p'+(i+1)+'preview').src=p.image;
-document.getElementById('p'+(i+1)+'preview').style.display='block';
-}
-});
+
+document.getElementById(
+'p'+(i+1)+'preview'
+).src=p.image;
+
+document.getElementById(
+'p'+(i+1)+'preview'
+).style.display='block';
+
 }
 
+});
+
+}
+
+
 function previewImage(i,input){
+
 const file=input.files[0];
+
 if(!file)return;
 
 const reader=new FileReader();
 
 reader.onload=function(){
-document.getElementById('p'+i+'preview').src=reader.result;
-document.getElementById('p'+i+'preview').style.display='block';
-document.getElementById('p'+i+'i').dataset.data=reader.result;
+
+document.getElementById(
+'p'+i+'preview'
+).src=reader.result;
+
+document.getElementById(
+'p'+i+'preview'
+).style.display='block';
+
+document.getElementById(
+'p'+i+'i'
+).dataset.data=reader.result;
+
 };
 
 reader.readAsDataURL(file);
+
 }
+
 
 function saveSettings(){
+
 settings={
+
 name:aLogo.value||defaults.name,
+
 title:aTitle.value||defaults.title,
+
 hero:aHero.value,
+
 about:aAbout.value,
+
 discord:aDiscord.value,
+
 products:[1,2,3].map(i=>({
-name:document.getElementById('p'+i+'n').value||'Produit '+i,
+
+name:
+document.getElementById('p'+i+'n').value
+||'Produit '+i,
+
 price:'GRATUIT',
-content:document.getElementById('p'+i+'c').value,
-image:document.getElementById('p'+i+'i').dataset.data||settings.products[i-1].image||'',
-icon:defaults.products[i-1].icon
+
+content:
+document.getElementById('p'+i+'c').value,
+
+image:
+document.getElementById('p'+i+'i').dataset.data
+||settings.products[i-1].image
+||'',
+
+icon:
+defaults.products[i-1].icon
+
 }))
+
 };
 
-localStorage.setItem('siteSettings',JSON.stringify(settings));
+
+localStorage.setItem(
+'siteSettings',
+JSON.stringify(settings)
+);
+
 render();
-alert('Modifications enregistrées sur cet appareil.');
+
+alert(
+'Modifications enregistrées sur cet appareil.'
+);
+
 }
+
 
 function resetSettings(){
+
 if(confirm('Réinitialiser le site ?')){
+
 localStorage.removeItem('siteSettings');
+
 settings=defaults;
+
 render();
+
 }
+
 }
+
+
+/* MOT DE PASSE ADMIN */
+
+function requestAdmin(){
+
+const password=
+prompt('Mot de passe Admin :');
+
+if(password==='WyzAdmin2026!'){
+
+toggleAdmin();
+
+}
+
+else if(password!==null){
+
+alert('Mot de passe incorrect.');
+
+}
+
+}
+
 
 function toggleAdmin(){
-document.getElementById('admin').classList.toggle('open');
 
-if(document.getElementById('admin').classList.contains('open')){
-document.getElementById('admin').scrollIntoView({behavior:'smooth'});
+document
+.getElementById('admin')
+.classList.toggle('open');
+
+if(
+document
+.getElementById('admin')
+.classList.contains('open')
+){
+
+document
+.getElementById('admin')
+.scrollIntoView({
+behavior:'smooth'
+});
+
 }
+
 }
+
 
 function scrollToId(id){
-document.getElementById(id).scrollIntoView({behavior:'smooth'});
+
+document
+.getElementById(id)
+.scrollIntoView({
+behavior:'smooth'
+});
+
 }
+
 
 function openDiscord(){
-const url=settings.discord||defaults.discord;
+
+const url=
+settings.discord
+||defaults.discord;
+
 window.location.href=url;
+
 }
+
 
 function addToCart(i){
-cart.push(settings.products[i]);
+
+cart.push(
+settings.products[i]
+);
+
 updateCart();
+
 }
+
 
 function updateCart(){
-document.getElementById('cartCount').textContent=cart.length;
 
-document.getElementById('cartItems').innerHTML=cart.length
-?cart.map((p,i)=>`
+document.getElementById('cartCount')
+.textContent=cart.length;
+
+
+document.getElementById('cartItems').innerHTML=
+
+cart.length
+
+?
+
+cart.map((p,i)=>`
+
 <div class="cartItem">
-<span>${escapeHtml(p.name)}</span>
-<strong>GRATUIT</strong>
-</div>
-`).join('')
-:'<p style="color:var(--muted)">Ton panier est vide.</p>';
 
-document.getElementById('total').textContent='GRATUIT';
+<span>
+${escapeHtml(p.name)}
+</span>
+
+<strong>
+GRATUIT
+</strong>
+
+</div>
+
+`).join('')
+
+:
+
+'<p style="color:var(--muted)">Ton panier est vide.</p>';
+
+
+document.getElementById('total')
+.textContent='GRATUIT';
+
 }
+
 
 function validateOrder(){
+
 if(!cart.length){
+
 alert('Ton panier est vide.');
+
 return;
+
 }
 
-document.getElementById('receiptItems').innerHTML=cart.map(function(p){
+
+document.getElementById('receiptItems')
+.innerHTML=
+
+cart.map(function(p){
+
 return `
+
 <div class="cartItem">
+
 <div>
-<strong>${escapeHtml(p.name)}</strong>
+
+<strong>
+${escapeHtml(p.name)}
+</strong>
+
 <br>
-<span style="color:var(--muted);white-space:pre-wrap">
-${escapeHtml(p.content||'Contenu à remettre')}
+
+<span
+style="color:var(--muted);white-space:pre-wrap">
+
+${escapeHtml(
+p.content||'Contenu à remettre'
+)}
+
 </span>
+
 </div>
-<strong>GRATUIT</strong>
+
+<strong>
+GRATUIT
+</strong>
+
 </div>
+
 `;
+
 }).join('');
 
+
 cart=[];
+
 updateCart();
+
 closeCart();
-document.getElementById('receipt').classList.add('show');
+
+document
+.getElementById('receipt')
+.classList
+.add('show');
+
 }
+
 
 function openCart(){
-document.getElementById('modal').classList.add('show');
+
+document
+.getElementById('modal')
+.classList
+.add('show');
+
 }
+
 
 function closeCart(){
-document.getElementById('modal').classList.remove('show');
+
+document
+.getElementById('modal')
+.classList
+.remove('show');
+
 }
+
 
 function closeReceipt(){
-document.getElementById('receipt').classList.remove('show');
+
+document
+.getElementById('receipt')
+.classList
+.remove('show');
+
 }
 
+
 render();
+
 </script>
 
 </body>
