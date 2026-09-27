@@ -1,182 +1,382 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Feuilles — Classement</title>
+<title>La Chinoiserie — Boutique</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#0b1020;color:#eef2ff}
-.container{max-width:1100px;margin:auto;padding:28px 18px}
-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}
-h1{margin:0;font-size:30px}.sub{color:#9aa5c0;margin-top:6px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.card{background:#131a2d;border:1px solid #26304a;border-radius:18px;padding:20px;box-shadow:0 12px 35px #0003}
-h2{font-size:18px;margin:0 0 16px}.form{display:grid;gap:11px}
-input,button{font:inherit;border-radius:11px;padding:12px;border:1px solid #303b59}
-input{background:#0d1426;color:white}button{background:#4f7cff;color:white;border:0;font-weight:700;cursor:pointer}
-button:hover{filter:brightness(1.08)}.danger{background:#b93650}.muted{color:#9aa5c0}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.stat{background:#0d1426;border-radius:14px;padding:15px}.stat b{font-size:25px;display:block}.stat span{color:#9aa5c0;font-size:13px}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid #26304a}th{color:#9aa5c0;font-size:13px}
-.rank{font-weight:800}.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.place{padding:16px;text-align:center;background:#0d1426;border-radius:14px}.place .medal{font-size:28px}.place b{display:block;margin:6px 0}.empty{text-align:center;color:#9aa5c0;padding:25px}
-.actions{display:flex;gap:8px}.small{padding:7px 10px;font-size:12px}
-.full{grid-column:1/-1}.footer{text-align:center;color:#66718b;margin-top:22px;font-size:12px}
-.user-bar{background:#131a2d;border:1px solid #26304a;padding:12px 18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-@media(max-width:750px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
+:root{color-scheme:light dark;--bg:#090909;--surface:#111;--surface2:#181818;--text:#f5f5f5;--muted:#aaa;--accent:#e50914;--border:#2b2b2b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{background:#090909}.app{min-height:100vh;background:var(--bg)}
+header{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);background:rgba(9,9,9,.94);backdrop-filter:blur(12px)}
+.nav{max-width:1200px;margin:auto;padding:16px 22px;display:flex;align-items:center;gap:22px}.logo{font-weight:900;letter-spacing:1px;font-size:20px}.logo span{color:var(--accent)}
+nav{display:flex;gap:16px;flex:1}nav button,.nav button{background:none;border:0;color:var(--text);cursor:pointer;font-weight:700}.pill{border:1px solid var(--border)!important;background:var(--surface2)!important;border-radius:12px;padding:9px 13px}
+.hero{max-width:1200px;margin:auto;padding:72px 22px 38px;display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center}.hero h1{font-size:clamp(42px,7vw,78px);line-height:.95;margin:0 0 20px}.hero p{color:var(--muted);font-size:18px;max-width:650px}.cta{display:flex;gap:12px;margin-top:24px}.btn{border:0;border-radius:12px;padding:13px 17px;font-weight:900;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.heroCard{min-height:300px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,#1b1b1b,#0d0d0d);display:grid;place-items:center;text-align:center;padding:30px}.heroCard strong{font-size:46px}.heroCard small{color:var(--muted)}
+section{max-width:1200px;margin:auto;padding:34px 22px}.sectionTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.sectionTitle h2{margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{border:1px solid var(--border);background:var(--surface);border-radius:18px;overflow:hidden}.thumb{height:180px;background:linear-gradient(135deg,#262626,#101010);display:grid;place-items:center;font-size:42px;font-weight:900}.content{padding:17px}.content h3{margin:0 0 8px}.content p{color:var(--muted);margin:0 0 15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.price{font-weight:900}
+.admin{display:none;border-top:1px solid var(--border);background:#0d0d0d}.admin.open{display:block}.adminGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:var(--muted)}input,textarea,select{width:100%;border:1px solid var(--border);background:#151515;color:var(--text);border-radius:10px;padding:11px}textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}
+.cart{position:fixed;right:18px;bottom:18px;z-index:20;background:var(--accent);color:white;border:0;border-radius:999px;padding:14px 18px;font-weight:900;cursor:pointer;box-shadow:0 10px 30px #0008}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:30;padding:20px}.modal.show{display:flex}.modalBox{width:min(520px,100%);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px}.modalTop{display:flex;justify-content:space-between;align-items:center}.modalTop button{background:none;border:0;color:var(--text);font-size:25px;cursor:pointer}.cartItem{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+footer{max-width:1200px;margin:auto;padding:35px 22px 50px;color:var(--muted);border-top:1px solid var(--border)}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:45px}.grid{grid-template-columns:1fr}.adminGrid{grid-template-columns:1fr}nav{display:none}.heroCard{min-height:210px}}
 </style>
 </head>
 <body>
-<div class="container">
-<header>
-  <div><h1>📋 Feuilles — Classement</h1><div class="sub">Enregistre tes feuilles et consulte le classement général.</div></div>
-  <button onclick="loadData()" class="small">🔄 Rafraîchir</button>
-</header>
+<div class="app" id="app">
+<header><div class="nav"><div class="logo" id="logo">LA <span>CHINOISERIE</span></div><nav><button onclick="scrollToId('products')">Produits</button><button onclick="scrollToId('about')">À propos</button><button onclick="openDiscord()">Discord</button></nav><button class="pill" onclick="toggleAdmin()">⚙ Admin</button></div></header>
 
-<div class="user-bar">
-  <div id="userInfo">Compte connecté : ...</div>
-  <button class="small" onclick="switchUser()">Changer de Pseudo</button>
+<main>
+<section class="hero">
+<div>
+<div class="pill" style="display:inline-block">BOUTIQUE OFFICIELLE</div>
+<h1 id="heroTitle">La Chinoiserie</h1>
+<p id="heroText">Un espace simple pour présenter tes produits, tes offres et ta communauté.</p>
+<div class="cta">
+<button class="btn primary" onclick="scrollToId('products')">Voir les produits</button>
+<button class="btn secondary" onclick="openDiscord()">Rejoindre Discord</button>
 </div>
-
-<div class="grid">
-<section class="card">
-<h2>➕ Ajouter un dépôt</h2>
-<form class="form" id="form">
-<input id="count" type="number" min="1" placeholder="Nombre de feuilles" required>
-<input id="date" type="date" required>
-<input id="time" type="time" required>
-<button id="submitBtn">Ajouter à mon compte</button>
-</form>
-</section>
-
-<section class="card">
-<h2>📊 Résumé Global</h2>
-<div class="stats">
-<div class="stat"><b id="total">0</b><span>Feuilles au total</span></div>
-<div class="stat"><b id="people">0</b><span>Personnes</span></div>
-<div class="stat"><b id="entries">0</b><span>Entrées</span></div>
+</div>
+<div class="heroCard">
+<div><strong>🛍️</strong><br><small>Personnalise ce bloc depuis l'espace admin</small></div>
 </div>
 </section>
 
-<section class="card full">
-<h2>🏆 Classement Général</h2>
-<div class="podium" id="podium"></div>
-<table><thead><tr><th>#</th><th>Personne</th><th>Feuilles</th></tr></thead><tbody id="ranking"></tbody></table>
+<section id="products">
+<div class="sectionTitle">
+<h2>Produits</h2>
+<span id="productCount" style="color:var(--muted)"></span>
+</div>
+<div class="grid" id="productGrid"></div>
 </section>
 
-<section class="card full">
-<h2>🕒 Historique des dépôts</h2>
-<table><thead><tr><th>Personne</th><th>Feuilles</th><th>Date</th><th>Heure</th><th>Action</th></tr></thead><tbody id="history"></tbody></table>
-<div class="empty" id="empty">Aucune entrée pour le moment.</div>
+<section id="about">
+<div class="sectionTitle"><h2>À propos</h2></div>
+<p id="aboutText" style="color:var(--muted);max-width:800px">
+Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les prix et le lien Discord depuis le panneau admin.
+</p>
 </section>
+
+<section class="admin" id="admin">
+<div class="sectionTitle">
+<h2>⚙️ Administration</h2>
+<button class="btn secondary" onclick="toggleAdmin()">Fermer</button>
 </div>
-<div class="footer">Données synchronisées.</div>
+
+<div class="adminGrid">
+
+<div class="field">
+<label>Nom du site</label>
+<input id="aLogo">
+</div>
+
+<div class="field">
+<label>Titre principal</label>
+<input id="aTitle">
+</div>
+
+<div class="field full">
+<label>Description</label>
+<textarea id="aHero"></textarea>
+</div>
+
+<div class="field full">
+<label>Texte À propos</label>
+<textarea id="aAbout"></textarea>
+</div>
+
+<div class="field full">
+<label>Lien Discord</label>
+<input id="aDiscord">
+</div>
+
+<div class="field">
+<label>Produit 1 — nom</label>
+<input id="p1n">
+</div>
+
+<div class="field">
+<label>Produit 1 — image</label>
+<input id="p1i" type="file" accept="image/*" onchange="previewImage(1,this)">
+</div>
+
+<div class="field full">
+<img id="p1preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+<label>Produit 1 — contenu reçu</label>
+<textarea id="p1c"></textarea>
+</div>
+
+<div class="field">
+<label>Produit 2 — nom</label>
+<input id="p2n">
+</div>
+
+<div class="field">
+<label>Produit 2 — image</label>
+<input id="p2i" type="file" accept="image/*" onchange="previewImage(2,this)">
+</div>
+
+<div class="field full">
+<img id="p2preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+<label>Produit 2 — contenu reçu</label>
+<textarea id="p2c"></textarea>
+</div>
+
+<div class="field">
+<label>Produit 3 — nom</label>
+<input id="p3n">
+</div>
+
+<div class="field">
+<label>Produit 3 — image</label>
+<input id="p3i" type="file" accept="image/*" onchange="previewImage(3,this)">
+</div>
+
+<div class="field full">
+<img id="p3preview" style="display:none;max-width:180px;max-height:120px;border-radius:10px">
+<label>Produit 3 — contenu reçu</label>
+<textarea id="p3c"></textarea>
+</div>
+
+<div class="full">
+<button class="btn primary" onclick="saveSettings()">💾 Enregistrer les modifications</button>
+<button class="btn secondary" onclick="resetSettings()">Réinitialiser</button>
+</div>
+
+</div>
+</section>
+</main>
+
+<footer>
+© <span id="year"></span> <span id="footName">La Chinoiserie</span> — Site personnalisable
+</footer>
+
+<button class="cart" onclick="openCart()">🛒 Panier <span id="cartCount">0</span></button>
+</div>
+
+<div class="modal" id="modal">
+<div class="modalBox">
+<div class="modalTop">
+<h2>Mon panier</h2>
+<button onclick="closeCart()">×</button>
+</div>
+<div id="cartItems"></div>
+<div class="row" style="margin-top:18px">
+<strong>Total</strong>
+<strong id="total">GRATUIT</strong>
+</div>
+<button class="btn primary" style="width:100%;margin-top:16px" onclick="validateOrder()">✅ Valider la commande</button>
+</div>
+</div>
+
+<div class="modal" id="receipt">
+<div class="modalBox">
+<div class="modalTop">
+<h2>🧾 Reçu de commande</h2>
+<button onclick="closeReceipt()">×</button>
+</div>
+<p style="color:var(--muted)">Commande validée avec succès.</p>
+<div id="receiptItems"></div>
+<button class="btn primary" style="width:100%;margin-top:16px" onclick="closeReceipt()">Fermer</button>
+</div>
 </div>
 
 <script>
-// API Publique de stockage universelle
-const API = "https://api.counterapi.dev/v1/wyz59_champs_feuilles/data";
+const defaults={
+name:'La Chinoiserie',
+title:'La Chinoiserie',
+hero:'Un espace simple pour présenter tes produits, tes offres et ta communauté.',
+about:'Bienvenue sur La Chinoiserie. Tu peux modifier ce texte, les produits, les images et le contenu reçu depuis le panneau admin.',
+discord:'https://discord.gg/sKSPH7GfQ9',
+products:[
+{name:'Produit 1',price:'GRATUIT',content:'Contenu du Produit 1',icon:'🔥'},
+{name:'Produit 2',price:'GRATUIT',content:'Contenu du Produit 2',icon:'⚡'},
+{name:'Produit 3',price:'GRATUIT',content:'Contenu du Produit 3',icon:'💎'}
+]
+};
 
-let currentUser = localStorage.getItem("feuilles_user") || "";
-let globalData = JSON.parse(localStorage.getItem("feuilles_cache") || "[]");
+let settings=JSON.parse(localStorage.getItem('siteSettings')||'null')||defaults;
+let cart=[];
 
-function initUser() {
-  while (!currentUser) {
-    currentUser = prompt("Entrez votre pseudo / prénom :") || "";
-    currentUser = currentUser.trim();
-  }
-  localStorage.setItem("feuilles_user", currentUser);
-  document.getElementById("userInfo").innerHTML = `Compte connecté : <b>${esc(currentUser)}</b>`;
+function render(){
+document.getElementById('logo').innerHTML=(settings.name||'Site').toUpperCase();
+document.getElementById('heroTitle').textContent=settings.title;
+document.getElementById('heroText').textContent=settings.hero;
+document.getElementById('aboutText').textContent=settings.about;
+document.getElementById('footName').textContent=settings.name;
+document.getElementById('year').textContent=new Date().getFullYear();
+document.getElementById('productCount').textContent=settings.products.length+' produits';
+
+document.getElementById('productGrid').innerHTML=settings.products.map((p,i)=>`
+<article class="card">
+<div class="thumb">
+${p.image
+?`<img src="${escapeHtml(p.image)}" style="width:100%;height:100%;object-fit:cover;display:block">`
+:p.icon}
+</div>
+<div class="content">
+<h3>${escapeHtml(p.name)}</h3>
+<p>Produit personnalisable depuis l'admin.</p>
+<div class="row">
+<span class="price">${escapeHtml(p.price)}</span>
+<button class="btn primary" onclick="addToCart(${i})">Ajouter</button>
+</div>
+</div>
+</article>
+`).join('');
+
+fillAdmin();
+updateCart();
 }
 
-function switchUser() {
-  const newUser = prompt("Entrez un nouveau pseudo / compte :", currentUser);
-  if (newUser && newUser.trim()) {
-    currentUser = newUser.trim();
-    localStorage.setItem("feuilles_user", currentUser);
-    initUser();
-    render();
-  }
+function escapeHtml(s){
+return String(s).replace(/[&<>'"]/g,c=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+"'":'&#39;',
+'"':'&quot;'
+}[c]));
 }
 
-initUser();
+function fillAdmin(){
+aLogo.value=settings.name;
+aTitle.value=settings.title;
+aHero.value=settings.hero;
+aAbout.value=settings.about;
+aDiscord.value=settings.discord;
 
-const $ = id => document.getElementById(id);
-const now = new Date();
-$("date").value = now.toISOString().slice(0, 10);
-$("time").value = now.toTimeString().slice(0, 5);
+settings.products.forEach((p,i)=>{
+document.getElementById('p'+(i+1)+'n').value=p.name;
+document.getElementById('p'+(i+1)+'c').value=p.content||'';
 
-async function loadData() {
-  render();
+if(p.image){
+document.getElementById('p'+(i+1)+'preview').src=p.image;
+document.getElementById('p'+(i+1)+'preview').style.display='block';
 }
-
-function saveDataLocal() {
-  localStorage.setItem("feuilles_cache", JSON.stringify(globalData));
-  render();
-}
-
-function render() {
-  const totals = {};
-  globalData.forEach(x => totals[x.name] = (totals[x.name] || 0) + Number(x.count));
-  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-
-  $("total").textContent = globalData.reduce((s, x) => s + Number(x.count), 0);
-  $("people").textContent = sorted.length;
-  $("entries").textContent = globalData.length;
-
-  $("ranking").innerHTML = sorted.map((x, i) => 
-    `<tr><td class="rank">${i + 1}</td><td>${esc(x[0])}</td><td><b>${x[1]}</b></td></tr>`
-  ).join("") || `<tr><td colspan="3" class="empty">Aucune entrée</td></tr>`;
-
-  const medals = ["🥇", "🥈", "🥉"];
-  $("podium").innerHTML = sorted.slice(0, 3).map((x, i) => 
-    `<div class="place"><div class="medal">${medals[i]}</div><b>${esc(x[0])}</b><span>${x[1]} feuilles</span></div>`
-  ).join("") || `<div class="empty" style="grid-column:1/-1">Le podium apparaîtra ici.</div>`;
-
-  $("history").innerHTML = globalData.slice().reverse().map(x => {
-    const isOwner = x.name.toLowerCase() === currentUser.toLowerCase();
-    const deleteBtn = isOwner 
-      ? `<button class="danger small" onclick="removeEntry('${x.id}')">Supprimer</button>` 
-      : `<span class="muted" style="font-size:11px">Autre compte</span>`;
-
-    return `<tr><td>${esc(x.name)}</td><td>${x.count}</td><td>${formatDate(x.date)}</td><td>${x.time}</td><td>${deleteBtn}</td></tr>`;
-  }).join("");
-
-  $("empty").style.display = globalData.length ? "none" : "block";
-}
-
-function formatDate(s) { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])); }
-
-$("form").addEventListener("submit", e => {
-  e.preventDefault();
-  
-  const countVal = Number($("count").value);
-  if (!countVal || countVal <= 0) return;
-
-  const newEntry = {
-    id: crypto.randomUUID(),
-    name: currentUser,
-    count: countVal,
-    date: $("date").value,
-    time: $("time").value
-  };
-
-  globalData.push(newEntry);
-  saveDataLocal();
-
-  $("form").reset();
-  $("date").value = now.toISOString().slice(0, 10);
-  $("time").value = now.toTimeString().slice(0, 5);
 });
+}
 
-function removeEntry(id) {
-  if (confirm("Voulez-vous supprimer ce dépôt ?")) {
-    globalData = globalData.filter(x => x.id !== id);
-    saveDataLocal();
-  }
+function previewImage(i,input){
+const file=input.files[0];
+if(!file)return;
+
+const reader=new FileReader();
+
+reader.onload=function(){
+document.getElementById('p'+i+'preview').src=reader.result;
+document.getElementById('p'+i+'preview').style.display='block';
+document.getElementById('p'+i+'i').dataset.data=reader.result;
+};
+
+reader.readAsDataURL(file);
+}
+
+function saveSettings(){
+settings={
+name:aLogo.value||defaults.name,
+title:aTitle.value||defaults.title,
+hero:aHero.value,
+about:aAbout.value,
+discord:aDiscord.value,
+products:[1,2,3].map(i=>({
+name:document.getElementById('p'+i+'n').value||'Produit '+i,
+price:'GRATUIT',
+content:document.getElementById('p'+i+'c').value,
+image:document.getElementById('p'+i+'i').dataset.data||settings.products[i-1].image||'',
+icon:defaults.products[i-1].icon
+}))
+};
+
+localStorage.setItem('siteSettings',JSON.stringify(settings));
+render();
+alert('Modifications enregistrées sur cet appareil.');
+}
+
+function resetSettings(){
+if(confirm('Réinitialiser le site ?')){
+localStorage.removeItem('siteSettings');
+settings=defaults;
+render();
+}
+}
+
+function toggleAdmin(){
+document.getElementById('admin').classList.toggle('open');
+
+if(document.getElementById('admin').classList.contains('open')){
+document.getElementById('admin').scrollIntoView({behavior:'smooth'});
+}
+}
+
+function scrollToId(id){
+document.getElementById(id).scrollIntoView({behavior:'smooth'});
+}
+
+function openDiscord(){
+const url=settings.discord||defaults.discord;
+window.location.href=url;
+}
+
+function addToCart(i){
+cart.push(settings.products[i]);
+updateCart();
+}
+
+function updateCart(){
+document.getElementById('cartCount').textContent=cart.length;
+
+document.getElementById('cartItems').innerHTML=cart.length
+?cart.map((p,i)=>`
+<div class="cartItem">
+<span>${escapeHtml(p.name)}</span>
+<strong>GRATUIT</strong>
+</div>
+`).join('')
+:'<p style="color:var(--muted)">Ton panier est vide.</p>';
+
+document.getElementById('total').textContent='GRATUIT';
+}
+
+function validateOrder(){
+if(!cart.length){
+alert('Ton panier est vide.');
+return;
+}
+
+document.getElementById('receiptItems').innerHTML=cart.map(function(p){
+return `
+<div class="cartItem">
+<div>
+<strong>${escapeHtml(p.name)}</strong>
+<br>
+<span style="color:var(--muted);white-space:pre-wrap">
+${escapeHtml(p.content||'Contenu à remettre')}
+</span>
+</div>
+<strong>GRATUIT</strong>
+</div>
+`;
+}).join('');
+
+cart=[];
+updateCart();
+closeCart();
+document.getElementById('receipt').classList.add('show');
+}
+
+function openCart(){
+document.getElementById('modal').classList.add('show');
+}
+
+function closeCart(){
+document.getElementById('modal').classList.remove('show');
+}
+
+function closeReceipt(){
+document.getElementById('receipt').classList.remove('show');
 }
 
 render();
 </script>
+
 </body>
 </html>
